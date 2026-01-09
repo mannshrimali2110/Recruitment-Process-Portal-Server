@@ -340,17 +340,84 @@ public class ApplicationService : IApplicationService
     }
 
 
-    public Task<ApplicationDetailsDto> GetApplicationDetailsAsync(int linkId)
-        => Task.FromResult(new ApplicationDetailsDto());
+    public async Task<ApplicationDetailsDto> GetApplicationDetailsAsync(int linkId)
+    {
+        var application = await _context.JobCandidateLinks
+            .Where(l => l.LinkID == linkId)
+            .Select(l => new
+            {
+                l.LinkID,
+                CandidateName = l.CandidateProfile.FirstName + " " + l.CandidateProfile.LastName,
+                l.CandidateProfile.Email,
+                JobTitle = l.JobPosition.Title,
+                CurrentStatus = l.ApplicationStatus.StatusName,
+                AppliedOn = l.LinkDate
+            })
+            .SingleOrDefaultAsync();
 
-    public Task<ApplicationSummaryDto> GetApplicationSummaryAsync(int linkId)
-        => Task.FromResult(new ApplicationSummaryDto());
+        if (application == null)
+            throw new InvalidOperationException("Application not found.");
 
-    public Task<IReadOnlyList<ApplicationSummaryDto>> GetApplicationsByPositionAsync(int positionId)
-        => Task.FromResult<IReadOnlyList<ApplicationSummaryDto>>(
-            Array.Empty<ApplicationSummaryDto>());
+        var history = await GetStatusHistoryAsync(linkId);
 
-    public Task<IReadOnlyList<ApplicationStatusLogDto>> GetStatusHistoryAsync(int linkId)
-        => Task.FromResult<IReadOnlyList<ApplicationStatusLogDto>>(
-            Array.Empty<ApplicationStatusLogDto>());
+        return new ApplicationDetailsDto
+        {
+            LinkId = application.LinkID,
+            CandidateName = application.CandidateName,
+            JobTitle = application.JobTitle,
+            CurrentStatus = application.CurrentStatus,
+            AppliedOn = application.AppliedOn,
+            StatusHistory = history
+        };
+    }
+
+    public async Task<ApplicationSummaryDto> GetApplicationSummaryAsync(int linkId)
+    {
+        var dto = await _context.JobCandidateLinks
+            .Where(l => l.LinkID == linkId)
+            .Select(l => new ApplicationSummaryDto
+            {
+                LinkId = l.LinkID,
+                CandidateName = l.CandidateProfile.FirstName + " " + l.CandidateProfile.LastName,
+                JobTitle = l.JobPosition.Title,
+                CurrentStatus = l.ApplicationStatus.StatusName,
+                AppliedOn = l.LinkDate
+            })
+            .SingleOrDefaultAsync();
+
+        return dto ?? throw new InvalidOperationException("Application not found.");
+    }
+
+    public async Task<IReadOnlyList<ApplicationSummaryDto>> GetApplicationsByPositionAsync(int positionId)
+    {
+        return await _context.JobCandidateLinks
+            .Where(l => l.PositionID == positionId)
+            .OrderByDescending(l => l.LinkDate)
+            .Select(l => new ApplicationSummaryDto
+            {
+                LinkId = l.LinkID,
+                CandidateName = l.CandidateProfile.FirstName + " " + l.CandidateProfile.LastName,
+                JobTitle = l.JobPosition.Title,
+                CurrentStatus = l.ApplicationStatus.StatusName,
+                AppliedOn = l.LinkDate
+            })
+            .ToListAsync();
+    }
+
+
+    public async Task<IReadOnlyList<ApplicationStatusLogDto>> GetStatusHistoryAsync(int linkId)
+    {
+        return await _context.StatusChangeLogs
+            .Where(l => l.LinkID == linkId)
+            .OrderByDescending(l => l.ChangedAt)
+            .Select(l => new ApplicationStatusLogDto
+            {
+                OldStatus = l.OldStatus.StatusName,
+                NewStatus = l.NewStatus.StatusName,
+                ChangedBy = l.ChangedByUser.FirstName + " " + l.ChangedByUser.LastName,
+                ChangedAt = l.ChangedAt,
+            })
+            .ToListAsync();
+    }
+
 }
