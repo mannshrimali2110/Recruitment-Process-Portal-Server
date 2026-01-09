@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace recruitment_process_portal_server.Migrations
 {
     /// <inheritdoc />
@@ -581,7 +583,6 @@ namespace recruitment_process_portal_server.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InterviewID = table.Column<int>(type: "int", nullable: false),
                     InterviewerUserID = table.Column<int>(type: "int", nullable: false),
-                    InterviewerUserID1 = table.Column<int>(type: "int", nullable: true),
                     Score = table.Column<decimal>(type: "decimal(4,2)", nullable: true),
                     Outcome = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Feedback = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -595,11 +596,6 @@ namespace recruitment_process_portal_server.Migrations
                         principalTable: "AppUsers",
                         principalColumn: "UserID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_InterviewResults_AppUsers_InterviewerUserID1",
-                        column: x => x.InterviewerUserID1,
-                        principalTable: "AppUsers",
-                        principalColumn: "UserID");
                     table.ForeignKey(
                         name: "FK_InterviewResults_InterviewSchedules_InterviewID",
                         column: x => x.InterviewID,
@@ -634,6 +630,20 @@ namespace recruitment_process_portal_server.Migrations
                         principalTable: "Skills",
                         principalColumn: "SkillID",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "RoleID", "Description", "RoleName" },
+                values: new object[,]
+                {
+                    { 1, "Manages job openings, candidates, interviews", "Recruiter" },
+                    { 2, "Culture fit, negotiations, documentation", "HR" },
+                    { 3, "Provides interview feedback", "Interviewer" },
+                    { 4, "Screens CVs and shortlists candidates", "Reviewer" },
+                    { 5, "Manages users, roles, system configuration", "Admin" },
+                    { 6, "Applies to jobs and uploads documents", "Candidate" },
+                    { 7, "Read-only access to system data", "Viewer" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -700,11 +710,6 @@ namespace recruitment_process_portal_server.Migrations
                 name: "IX_InterviewResults_InterviewerUserID",
                 table: "InterviewResults",
                 column: "InterviewerUserID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_InterviewResults_InterviewerUserID1",
-                table: "InterviewResults",
-                column: "InterviewerUserID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InterviewResults_InterviewID",

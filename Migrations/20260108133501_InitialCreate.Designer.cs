@@ -12,7 +12,7 @@ using recruitment_process_portal_server.Data;
 namespace recruitment_process_portal_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251225121107_InitialCreate")]
+    [Migration("20260108133501_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -332,9 +332,6 @@ namespace recruitment_process_portal_server.Migrations
                     b.Property<int>("InterviewerUserID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("InterviewerUserID1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Outcome")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -348,8 +345,6 @@ namespace recruitment_process_portal_server.Migrations
                     b.HasIndex("InterviewID");
 
                     b.HasIndex("InterviewerUserID");
-
-                    b.HasIndex("InterviewerUserID1");
 
                     b.ToTable("InterviewResults");
                 });
@@ -762,6 +757,50 @@ namespace recruitment_process_portal_server.Migrations
                     b.HasKey("RoleID");
 
                     b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleID = 1,
+                            Description = "Manages job openings, candidates, interviews",
+                            RoleName = "Recruiter"
+                        },
+                        new
+                        {
+                            RoleID = 2,
+                            Description = "Culture fit, negotiations, documentation",
+                            RoleName = "HR"
+                        },
+                        new
+                        {
+                            RoleID = 3,
+                            Description = "Provides interview feedback",
+                            RoleName = "Interviewer"
+                        },
+                        new
+                        {
+                            RoleID = 4,
+                            Description = "Screens CVs and shortlists candidates",
+                            RoleName = "Reviewer"
+                        },
+                        new
+                        {
+                            RoleID = 5,
+                            Description = "Manages users, roles, system configuration",
+                            RoleName = "Admin"
+                        },
+                        new
+                        {
+                            RoleID = 6,
+                            Description = "Applies to jobs and uploads documents",
+                            RoleName = "Candidate"
+                        },
+                        new
+                        {
+                            RoleID = 7,
+                            Description = "Read-only access to system data",
+                            RoleName = "Viewer"
+                        });
                 });
 
             modelBuilder.Entity("recruitment_process_portal_server.Models.AppUser", b =>
@@ -895,21 +934,15 @@ namespace recruitment_process_portal_server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("recruitment_process_portal_server.Models.AppUser", "InterviewerUser")
+                    b.HasOne("recruitment_process_portal_server.Models.AppUser", "Interviewer")
                         .WithMany()
                         .HasForeignKey("InterviewerUserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("recruitment_process_portal_server.Models.AppUser", "Interviewer")
-                        .WithMany()
-                        .HasForeignKey("InterviewerUserID1");
-
                     b.Navigation("InterviewSchedule");
 
                     b.Navigation("Interviewer");
-
-                    b.Navigation("InterviewerUser");
                 });
 
             modelBuilder.Entity("recruitment_process_portal_server.Models.InterviewSchedule", b =>

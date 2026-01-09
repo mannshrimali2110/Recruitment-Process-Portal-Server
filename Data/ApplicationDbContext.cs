@@ -49,6 +49,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<OfferLetter>()
         .Property(o => o.CTC)
         .HasPrecision(18, 2);
+
+        modelBuilder.Entity<UserRole>().HasData(
+       new UserRole { RoleID = 1, RoleName = "Recruiter", Description = "Manages job openings, candidates, interviews" },
+       new UserRole { RoleID = 2, RoleName = "HR", Description = "Culture fit, negotiations, documentation" },
+       new UserRole { RoleID = 3, RoleName = "Interviewer", Description = "Provides interview feedback" },
+       new UserRole { RoleID = 4, RoleName = "Reviewer", Description = "Screens CVs and shortlists candidates" },
+       new UserRole { RoleID = 5, RoleName = "Admin", Description = "Manages users, roles, system configuration" },
+       new UserRole { RoleID = 6, RoleName = "Candidate", Description = "Applies to jobs and uploads documents" },
+       new UserRole { RoleID = 7, RoleName = "Viewer", Description = "Read-only access to system data" }
+   );
     }
 
 }

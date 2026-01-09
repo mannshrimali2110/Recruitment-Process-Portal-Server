@@ -20,7 +20,7 @@ namespace recruitment_process_portal_server.Data.Configurations
 
             // Relationship: AppUser (Interviewer) (1) -> InterviewResult (Many)
             builder
-                .HasOne(ir => ir.InterviewerUser)
+                .HasOne(ir => ir.Interviewer)
                 .WithMany()
                 .HasForeignKey(ir => ir.InterviewerUserID)
                 .OnDelete(DeleteBehavior.Restrict);

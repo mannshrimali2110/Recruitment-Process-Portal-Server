@@ -31,7 +31,6 @@ namespace recruitment_process_portal_server.Models
         public string Outcome { get; set; } = string.Empty; // PASS / FAIL / HOLD
 
         public string? Feedback { get; set; }
-        public AppUser? InterviewerUser { get; set; }
         public ICollection<SkillRating> SkillRatings { get; set; } = new List<SkillRating>();
 
     }
